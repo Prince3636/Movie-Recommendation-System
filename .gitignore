@@ -1,2 +1,11 @@
+# Virtual environment
+.venv/
+myenv/
+env/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Large model files
 *.pkl
-similarity.pkl
