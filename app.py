@@ -5,24 +5,21 @@ import os
 import gdown
 import pandas as pd
 
-# ---------------- PAGE CONFIG ----------------
+
 st.set_page_config(
     page_title="Movie Recommendation System",
     page_icon="🎬",
     layout="wide"
 )
 
-# ---------------- TMDB API KEY ----------------
 API_KEY = st.secrets.get("TMDB_API_KEY", "")
 
-# ---------------- CONSTANTS ----------------
 PLACEHOLDER_POSTER = "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba"
 
-# ---------------- GOOGLE DRIVE FILE IDS ----------------
 MOVIES_FILE_ID = "12Hmtq0p_ve2dpDeNhauIIQdIiOhf6ITm"
 SIMILARITY_FILE_ID = "1wFFhiwwzKmBN_IygPmWwvNpY99pWR0LR"
 
-# ---------------- DOWNLOAD FILES ----------------
+
 def download_file(file_id, output):
     if not os.path.exists(output):
         url = f"https://drive.google.com/uc?id={file_id}"
@@ -31,17 +28,14 @@ def download_file(file_id, output):
 download_file(MOVIES_FILE_ID, "movies.pkl")
 download_file(SIMILARITY_FILE_ID, "similarity.pkl")
 
-# ---------------- LOAD DATA ----------------
 movies = pickle.load(open("movies.pkl", "rb"))
 similarity = pickle.load(open("similarity.pkl", "rb"))
 
 if not isinstance(movies, pd.DataFrame):
     movies = pd.DataFrame(movies)
 
-# ---------------- HTTP SESSION ----------------
 session = requests.Session()
 
-# ---------------- POSTER FETCH (MAX COVERAGE) ----------------
 import re
 
 @st.cache_data(show_spinner=False)
@@ -50,7 +44,7 @@ def fetch_poster(movie_id, title):
         return PLACEHOLDER_POSTER
 
     try:
-        # ---------- 1️⃣ TRY TMDB ID ----------
+     
         if pd.notna(movie_id):
             r = session.get(
                 f"https://api.themoviedb.org/3/movie/{int(movie_id)}",
@@ -62,7 +56,6 @@ def fetch_poster(movie_id, title):
                 if poster:
                     return "https://image.tmdb.org/t/p/w500" + poster
 
-        # ---------- 2️⃣ SAFE SEARCH BY TITLE ----------
         clean_title = re.sub(r"[^a-zA-Z0-9 ]", "", title.lower())
 
         s = session.get(
@@ -82,13 +75,12 @@ def fetch_poster(movie_id, title):
             tmdb_title = movie.get("title", "").lower()
             tmdb_title = re.sub(r"[^a-zA-Z0-9 ]", "", tmdb_title)
 
-            # ✅ STRICT MATCH
             if clean_title == tmdb_title:
                 poster = movie.get("poster_path")
                 if poster:
                     return "https://image.tmdb.org/t/p/w500" + poster
 
-        # ---------- 3️⃣ NOTHING MATCHED ----------
+     
         return PLACEHOLDER_POSTER
 
     except Exception:
@@ -96,7 +88,7 @@ def fetch_poster(movie_id, title):
 
 
 
-# ---------------- RECOMMENDER ----------------
+
 def recommend(movie):
     index = movies[movies["title"] == movie].index[0]
     distances = similarity[index]
@@ -120,7 +112,7 @@ def recommend(movie):
     return names, posters
 
 
-# ---------------- UI ----------------
+
 st.title("🎬 Movie Recommendation System")
 st.write("Select a movie and get similar recommendations")
 
