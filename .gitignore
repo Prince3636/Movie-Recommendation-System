@@ -1,11 +1,11 @@
-# Virtual environment
-.venv/
+# Virtual environments
 myenv/
+.venv/
 env/
 
 # Python cache
 __pycache__/
 *.pyc
 
-# Large model files
+# ML files
 *.pkl
